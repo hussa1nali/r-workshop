@@ -1,0 +1,9 @@
+---
+title: "Creating graphs in R with 'ggplot2'"
+author: "Hussain"
+date: "04/03/2022"
+output: html_document
+---
+
+#Plot with ggplot2
+We are going to make plots in R and its going to be fun.
