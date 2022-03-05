@@ -1,0 +1,82 @@
+---
+title: "my_tidying"
+author: "Hussain"
+date: "04/03/2022"
+output: html_document
+---
+```{r}
+# Attach packages
+library(tidyverse)
+library(janitor)
+library(here)
+library(readxl)
+```
+
+```{r}
+inverts <- read_excel(here("data", "inverts.xlsx"))
+lobsters <- read_excel(here("data","lobsters.xlsx"),skip =4)
+```
+
+```{r}
+View(inverts)
+names(inverts)
+summary(inverts)
+```
+
+```{r}
+# Note: Either single-quotes, double-quotes, OR backticks around years work!
+
+inverts_long <- pivot_longer(data = inverts, 
+                                    cols = '2016':'2018',
+                                    names_to = "year",
+                                    values_to = "sp_counts")
+```
+
+```{r}
+inverts_long
+```
+```{r}
+# Coerce "year" class to numeric: 
+
+inverts_long <- inverts_long %>% 
+  mutate(year = as.numeric(year))
+inverts_long
+```
+
+```{r}
+inverts_wide <- inverts_long %>% 
+  pivot_wider(names_from = site, 
+                     values_from = sp_counts)
+inverts_wide
+```
+```{r}
+siteyear_summary <- lobsters %>%
+  group_by(site, year) %>%
+  summarize(count_by_siteyear =  n(), 
+  )
+siteyear_long <- siteyear_summary %>%
+  pivot_wider(names_from = year, values_from = count_by_siteyear)
+siteyear_summary<- siteyear_long %>%
+  group_by(site)
+  
+siteyear_summary
+```
+```{r}
+inverts_long <- pivot_longer(data = siteyear_long, 
+                                    cols = '2012':'2016',
+                                    names_to = "year",
+                                    values_to = "sp_counts")
+inverts_long
+
+ggplot(data=inverts_long,aes(x=site, y=sp_counts))+
+  geom_col(aes(fill=year))
+
+```
+```{r}
+ggplot(data=inverts_long,aes(x=year, y=sp_counts, group = site))+
+  geom_line(show.legend = TRUE)+
+  theme_light() + 
+  labs(x = "year", y = "count") +
+  facet_wrap(~ site)
+```
+
